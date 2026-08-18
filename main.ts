@@ -1,25 +1,19 @@
+// Bad Apple Audio
+// Thin wrapper around Microsoft's built-in micro:bit V2 audio-samples package.
+
 //% color=#7b1fa2 icon="\uf028" block="Bad Apple Audio"
 namespace badappleAudio {
-    /**
-     * Starts native playback of unsigned 8-bit PCM samples.
-     * The native implementation runs independently of the MakeCode video loop.
-     */
-    //% shim=badappleAudio::playPCM
+    /** Play unsigned 8-bit PCM in the background on the V2 speaker. */
     //% block="play PCM $samples at $sampleRate Hz"
-    export function playPCM(samples: Buffer, sampleRate: number): void {
-        // Simulator fallback only. Hardware uses the C++ shim.
+    export function playPCM(samplesBuffer: Buffer, sampleRate: number): void {
+        samples.enable()
+        samples.setSampleRate(0, sampleRate)
+        samples.playAsync(0, samplesBuffer)
     }
 
-    /** Stop audio playback. */
-    //% shim=badappleAudio::stop
+    /** Disable sampled audio output. */
     //% block="stop PCM"
     export function stop(): void {
-    }
-
-    /** Returns true while the native player is active. */
-    //% shim=badappleAudio::isPlaying
-    //% block="PCM is playing"
-    export function isPlaying(): boolean {
-        return false
+        samples.disable()
     }
 }
