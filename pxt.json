@@ -1,13 +1,12 @@
 {
   "name": "badapple-audio",
-  "version": "0.0.4",
-  "description": "Experimental asynchronous PCM playback for micro:bit V2",
+  "version": "0.1.0",
+  "description": "Auto-transcribed Bad Apple note-event player for micro:bit",
   "dependencies": {
     "core": "*"
   },
   "files": [
-    "main.ts",
-    "badappleaudio.cpp"
+    "main.ts"
   ],
   "public": true,
   "supportedTargets": ["microbit"]
