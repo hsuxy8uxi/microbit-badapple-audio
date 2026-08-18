@@ -1,10 +1,9 @@
 {
   "name": "badapple-audio",
-  "version": "0.0.2",
-  "description": "Raw sampled-audio playback for micro:bit V2 using the official audio-samples runtime",
+  "version": "0.0.3",
+  "description": "Minimal MakeCode extension compile test before enabling raw audio",
   "dependencies": {
-    "core": "*",
-    "audio-samples": "*"
+    "core": "*"
   },
   "files": [
     "main.ts"
