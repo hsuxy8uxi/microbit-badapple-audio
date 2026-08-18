@@ -1,13 +1,29 @@
 {
-  "name": "badapple-audio",
-  "version": "0.1.0",
-  "description": "Bad Apple monophonic note-event player for micro:bit MakeCode",
-  "dependencies": {
-    "core": "*"
-  },
-  "files": [
-    "main.ts"
-  ],
-  "public": true,
-  "supportedTargets": ["microbit"]
+    "name": "badapple-audio",
+    "version": "0.2.0",
+    "description": "Unsigned 8-bit PCM playback for micro:bit V2 MakeCode projects",
+    "license": "MIT",
+    "dependencies": {
+        "core": "*"
+    },
+    "files": [
+        "README.md",
+        "main.ts",
+        "shim.cpp",
+        "pcmplayer.h",
+        "pcmplayer.cpp",
+        "shims.d.ts"
+    ],
+    "public": true,
+    "targetVersions": {
+        "target": "5.1.2",
+        "targetId": "microbit"
+    },
+    "supportedTargets": [
+        "microbit"
+    ],
+    "preferredEditor": "tsprj",
+    "disablesVariants": [
+        "mbdal"
+    ]
 }
