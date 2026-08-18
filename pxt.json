@@ -14,6 +14,9 @@
         "pcmplayer.cpp",
         "shims.d.ts"
     ],
+    "testFiles": [
+        "test.ts"
+    ],
     "public": true,
     "targetVersions": {
         "target": "5.1.2",
