@@ -1,7 +1,7 @@
 {
   "name": "badapple-audio",
   "version": "0.1.0",
-  "description": "Auto-transcribed Bad Apple note-event player for micro:bit",
+  "description": "Bad Apple monophonic note-event player for micro:bit MakeCode",
   "dependencies": {
     "core": "*"
   },
