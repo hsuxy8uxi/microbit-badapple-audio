@@ -1,0 +1,14 @@
+{
+  "name": "badapple-audio",
+  "version": "0.0.1",
+  "description": "Experimental raw sampled-audio playback for micro:bit V2",
+  "dependencies": {
+    "core": "*"
+  },
+  "files": [
+    "main.ts",
+    "badappleaudio.cpp"
+  ],
+  "public": true,
+  "supportedTargets": ["microbit"]
+}
