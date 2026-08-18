@@ -1,0 +1,23 @@
+name: MakeCode build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install MakeCode micro:bit target
+        run: npm install pxt-microbit@5.1.2
+      - name: Select target and install dependencies
+        run: |
+          npx pxt target microbit
+          npx pxt install
+      - name: Compile extension test project
+        run: npx pxt build
