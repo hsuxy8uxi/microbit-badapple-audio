@@ -1,3 +1,4 @@
+#include "pxt.h"
 #include "pcmplayer.h"
 
 namespace badappleAudio {
@@ -9,9 +10,8 @@ void PCMPlayer::init(int sampleRate) {
     if (sampleRate < 1000) sampleRate = 1000;
     if (sampleRate > 22050) sampleRate = 22050;
 
-    // This is the same high-level CODAL route used by the proven Billy
-    // MakeCode C++ extension: activate audio, attach a MemorySource to the
-    // micro:bit V2 mixer, then stream unsigned 8-bit samples into it.
+    // Same CODAL route used by the proven Billy MakeCode native extension:
+    // activate audio, attach a MemorySource to the mixer, then stream u8 PCM.
     uBit.audio.requestActivation();
     uBit.audio.setSpeakerEnabled(true);
 
@@ -35,8 +35,8 @@ void PCMPlayer::play(const uint8_t *data, int length, int sampleRate) {
     if (source == NULL)
         return;
 
-    // Copy the MakeCode Buffer into a CODAL ManagedBuffer. Keeping this as a
-    // member guarantees the bytes remain alive for the entire async playout.
+    // ManagedBuffer copies the MakeCode bytes and keeps them alive while the
+    // async MemorySource is still reading them.
     currentBuffer = ManagedBuffer((uint8_t *) data, length);
     source->playAsync(currentBuffer, 1);
 }
@@ -47,9 +47,6 @@ bool PCMPlayer::isPlaying() {
 }
 
 void PCMPlayer::stop() {
-    // CODAL MemorySource has no public cancel method. Disabling the audio
-    // pipeline is the reliable way to stop current output; the next play()
-    // call requests activation again.
     uBit.audio.disable();
 }
 
