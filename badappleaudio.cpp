@@ -1,62 +1,53 @@
 #include "pxt.h"
-#include "MicroBitAudio.h"
+#include "MicroBit.h"
+
+#if MICROBIT_CODAL
 #include "SampleSource.h"
+#endif
 
 using namespace pxt;
-using namespace codal;
 
 namespace badappleAudio {
-    static ManagedBuffer pcm;
     static bool playing = false;
-
-    static SampleSource *source() {
-        MicroBitAudio::requestActivation();
-        if (!MicroBitAudio::instance)
-            return NULL;
-        return MicroBitAudio::instance->sampleSource[0];
-    }
 
     //% shim=badappleAudio::playPCM
     void playPCM(Buffer samples, int sampleRate) {
+#if MICROBIT_CODAL
         if (!samples || samples->length <= 0)
             return;
+
         if (sampleRate < 1000) sampleRate = 1000;
         if (sampleRate > 22050) sampleRate = 22050;
 
-        SampleSource *s = source();
-        if (!s)
-            return;
-
-        // Keep a native managed copy alive after returning to MakeCode.
-        pcm = ManagedBuffer(samples->data, samples->length);
-
-        // Standard unsigned 8-bit PCM: 128 is silence.
-        s->setFormat(DATASTREAM_FORMAT_8BIT_UNSIGNED);
-        s->setSampleRate((float)sampleRate);
-        s->setVolume(1.0f);
-
-        MicroBitAudio::instance->setSpeakerEnabled(true);
+        // Use the same native route as pxt-microbit's official audio-samples
+        // package: uBit.audio.sampleSource[] -> Mixer2 -> PWM -> V2 speaker.
+        uBit.audio.enable();
+        uBit.audio.setSpeakerEnabled(true);
+        uBit.audio.sampleSource[0]->setSampleRate(sampleRate);
+        uBit.audio.sampleSource[0]->playAsync(samples->data, samples->length);
         playing = true;
-
-        // CODAL MemorySource -> SampleSource -> Mixer2 -> NRF52PWM -> speaker.
-        // Async playback leaves the MakeCode fiber free for OLED rendering.
-        s->playAsync(pcm, 1);
+#else
+        target_panic(PANIC_VARIANT_NOT_SUPPORTED);
+#endif
     }
 
     //% shim=badappleAudio::stop
     void stop() {
-        // MemorySource does not expose a public cancel method. A subsequent
-        // playPCM replaces its pending playout; this flag controls our API.
+        // CODAL MemorySource has no public cancel operation. This state flag
+        // is therefore advisory until the next sample finishes/replaces it.
         playing = false;
     }
 
     //% shim=badappleAudio::isPlaying
     bool isPlaying() {
-        if (!playing || !MicroBitAudio::instance)
+#if MICROBIT_CODAL
+        if (!playing)
             return false;
-        bool active = MicroBitAudio::instance->isPlaying();
-        if (!active)
+        if (!uBit.audio.isPlaying())
             playing = false;
-        return active;
+        return playing;
+#else
+        return false;
+#endif
     }
 }
