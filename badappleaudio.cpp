@@ -1,39 +1,62 @@
 #include "pxt.h"
-
-// Experimental native audio shim for micro:bit V2.
-// This first revision intentionally uses CODAL's SoundOutputPin rather than
-// bit-banging from TypeScript, so playback timing can be handled natively.
+#include "MicroBitAudio.h"
+#include "SampleSource.h"
 
 using namespace pxt;
+using namespace codal;
 
 namespace badappleAudio {
-    static bool playing = false;
     static ManagedBuffer pcm;
-    static int rate = 8000;
+    static bool playing = false;
+
+    static SampleSource *source() {
+        MicroBitAudio::requestActivation();
+        if (!MicroBitAudio::instance)
+            return NULL;
+        return MicroBitAudio::instance->sampleSource[0];
+    }
 
     //% shim=badappleAudio::playPCM
     void playPCM(Buffer samples, int sampleRate) {
-        if (!samples || samples->length <= 0) return;
+        if (!samples || samples->length <= 0)
+            return;
         if (sampleRate < 1000) sampleRate = 1000;
         if (sampleRate > 22050) sampleRate = 22050;
 
+        SampleSource *s = source();
+        if (!s)
+            return;
+
+        // Keep a native managed copy alive after returning to MakeCode.
         pcm = ManagedBuffer(samples->data, samples->length);
-        rate = sampleRate;
+
+        // Standard unsigned 8-bit PCM: 128 is silence.
+        s->setFormat(DATASTREAM_FORMAT_8BIT_UNSIGNED);
+        s->setSampleRate((float)sampleRate);
+        s->setVolume(1.0f);
+
+        MicroBitAudio::instance->setSpeakerEnabled(true);
         playing = true;
 
-        // TODO(native-v2): connect this ManagedBuffer to the CODAL mixer /
-        // SoundOutputPin pipeline. Kept behind this shim so the TS/video API
-        // will not change while the target-specific backend is refined.
+        // CODAL MemorySource -> SampleSource -> Mixer2 -> NRF52PWM -> speaker.
+        // Async playback leaves the MakeCode fiber free for OLED rendering.
+        s->playAsync(pcm, 1);
     }
 
     //% shim=badappleAudio::stop
     void stop() {
+        // MemorySource does not expose a public cancel method. A subsequent
+        // playPCM replaces its pending playout; this flag controls our API.
         playing = false;
-        pcm = ManagedBuffer();
     }
 
     //% shim=badappleAudio::isPlaying
     bool isPlaying() {
-        return playing;
+        if (!playing || !MicroBitAudio::instance)
+            return false;
+        bool active = MicroBitAudio::instance->isPlaying();
+        if (!active)
+            playing = false;
+        return active;
     }
 }
