@@ -3,15 +3,12 @@
 
 namespace badappleAudio {
 
-PCMPlayer::PCMPlayer() : source(NULL), channel(NULL), currentBuffer(), currentRate(0) {
-}
+PCMPlayer::PCMPlayer() : source(NULL), channel(NULL), currentBuffer(), currentRate(0) {}
 
 void PCMPlayer::init(int sampleRate) {
     if (sampleRate < 1000) sampleRate = 1000;
     if (sampleRate > 22050) sampleRate = 22050;
 
-    // Same CODAL route used by the proven Billy MakeCode native extension:
-    // activate audio, attach a MemorySource to the mixer, then stream u8 PCM.
     uBit.audio.requestActivation();
     uBit.audio.setSpeakerEnabled(true);
 
@@ -28,17 +25,14 @@ void PCMPlayer::init(int sampleRate) {
 }
 
 void PCMPlayer::play(const uint8_t *data, int length, int sampleRate) {
-    if (data == NULL || length <= 0)
-        return;
-
+    if (data == NULL || length <= 0) return;
     init(sampleRate);
-    if (source == NULL)
-        return;
+    if (source == NULL) return;
 
-    // ManagedBuffer copies the MakeCode bytes and keeps them alive while the
-    // async MemorySource is still reading them.
-    currentBuffer = ManagedBuffer((uint8_t *) data, length);
-    source->playAsync(currentBuffer, 1);
+    // Keep exactly one owned buffer at a time. play() is blocking, so CODAL
+    // finishes consuming this buffer before it can be replaced by the caller.
+    currentBuffer = ManagedBuffer((uint8_t *)data, length);
+    source->play(currentBuffer, 1);
 }
 
 bool PCMPlayer::isPlaying() {
