@@ -1,12 +1,13 @@
 {
   "name": "badapple-audio",
-  "version": "0.0.3",
-  "description": "Minimal MakeCode extension compile test before enabling raw audio",
+  "version": "0.0.4",
+  "description": "Experimental asynchronous PCM playback for micro:bit V2",
   "dependencies": {
     "core": "*"
   },
   "files": [
-    "main.ts"
+    "main.ts",
+    "badappleaudio.cpp"
   ],
   "public": true,
   "supportedTargets": ["microbit"]
